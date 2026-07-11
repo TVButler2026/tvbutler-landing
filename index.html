@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Butler — Mom's TV Just Works</title>
+<meta name="description" content="TV Butler lets you fix your parent's TV problems from anywhere. Remote support, screen monitoring, and instant alerts — no passwords stored, no Roku required.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: #0F1B2D; color: #F0F6FF; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  :root {
+    --navy: #0F1B2D; --navy-l: #162236; --navy-c: #1C2E45; --border: #243650;
+    --amber: #F59E0B; --green: #10B981; --accent: #4A9EFF; --red: #EF4444;
+    --white: #F0F6FF; --muted: #7B9AB8; --dim: #4A6480;
+  }
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,27,45,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px; height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo span:first-child { font-size: 24px; }
+  .nav-logo span:last-child { font-size: 18px; font-weight: 800; color: var(--white); }
+  .nav-cta { background: var(--amber); color: #0F1B2D; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; padding: 10px 20px; border-radius: 10px; text-decoration: none; transition: background 0.2s, transform 0.2s; }
+  .nav-cta:hover { background: #FBBF24; transform: translateY(-1px); }
+
+  .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; position: relative; overflow: hidden; }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 20px; padding: 6px 16px; font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 32px; animation: fadeUp 0.6s ease forwards; }
+  .hero-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+  .notif-mockup { background: var(--navy-l); border: 1px solid var(--border); border-radius: 18px; padding: 16px 20px; max-width: 340px; margin: 0 auto 48px; display: flex; gap: 14px; align-items: flex-start; text-align: left; animation: notifSlide 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.4s both; box-shadow: 0 20px 60px rgba(0,0,0,0.4); position: relative; }
+  .notif-mockup::before { content: ''; position: absolute; top: -1px; left: 20px; right: 20px; height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); border-radius: 2px; }
+  .notif-icon-wrap { width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg,#1C3A5E,#0F2540); border: 1px solid rgba(74,158,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .notif-app { font-size: 11px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .notif-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+  .notif-body { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .notif-action { display: inline-block; margin-top: 10px; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+  @keyframes notifSlide { from{opacity:0;transform:translateY(-20px) scale(0.95);} to{opacity:1;transform:translateY(0) scale(1);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
+
+  .hero h1 { font-family: Georgia, serif; font-size: clamp(40px,7vw,72px); font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; color: var(--white); max-width: 720px; margin: 0 auto 24px; animation: fadeUp 0.6s ease 0.1s both; }
+  .hero h1 em { font-style: normal; color: var(--amber); }
+  .hero-sub { font-size: clamp(17px,2.5vw,21px); color: var(--muted); max-width: 520px; margin: 0 auto 48px; animation: fadeUp 0.6s ease 0.2s both; }
+
+  .waitlist-form { display: flex; gap: 10px; max-width: 460px; margin: 0 auto; flex-wrap: wrap; justify-content: center; animation: fadeUp 0.6s ease 0.3s both; }
+  .waitlist-input { flex: 1; min-width: 220px; background: var(--navy-c); border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 18px; color: var(--white); font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .waitlist-input:focus { border-color: var(--amber); }
+  .waitlist-input::placeholder { color: var(--dim); }
+  .waitlist-btn { background: var(--amber); color: #0F1B2D; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; padding: 14px 28px; border-radius: 12px; transition: background 0.2s, transform 0.2s; white-space: nowrap; }
+  .waitlist-btn:hover { background: #FBBF24; transform: translateY(-1px); }
+  .waitlist-note { font-size: 12px; color: var(--dim); margin-top: 10px; width: 100%; text-align: center; }
+  .success-msg { display: none; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 14px 20px; color: var(--green); font-size: 15px; font-weight: 600; text-align: center; margin-top: 12px; width: 100%; }
+
+  .stats-strip { background: var(--navy-l); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 24px; }
+  .stats-inner { max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; text-align: center; }
+  .stat-val { font-size: 40px; font-weight: 800; color: var(--amber); line-height: 1; }
+  .stat-label { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+  section { padding: 80px 24px; max-width: 900px; margin: 0 auto; }
+  .eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--amber); margin-bottom: 12px; }
+  h2 { font-family: Georgia, serif; font-size: clamp(28px,4vw,44px); font-weight: 700; line-height: 1.15; color: var(--white); margin-bottom: 16px; }
+  .section-sub { font-size: 18px; color: var(--muted); max-width: 560px; line-height: 1.6; margin-bottom: 48px; }
+
+  .problem-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 16px; margin-top: 40px; }
+  .problem-card { background: var(--navy-c); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  .problem-icon { font-size: 28px; margin-bottom: 14px; }
+  .problem-quote { font-family: Georgia, serif; font-size: 18px; font-style: italic; color: var(--white); margin-bottom: 12px; line-height: 1.4; }
+  .problem-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  .device-section { background: linear-gradient(135deg,#162236,#1C2E45); border: 1px solid var(--border); border-radius: 24px; padding: 48px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-top: 40px; }
+  .device-orb { width: 160px; height: 160px; border-radius: 36px; background: linear-gradient(135deg,#1C3A5E,#0F2540); box-shadow: 0 0 0 2px var(--green), 0 0 60px rgba(16,185,129,0.15); display: flex; align-items: center; justify-content: center; font-size: 72px; margin: 0 auto; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+  .device-features { display: flex; flex-direction: column; gap: 16px; }
+  .device-feature { display: flex; gap: 14px; align-items: flex-start; }
+  .device-feature-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(74,158,255,0.1); border: 1px solid rgba(74,158,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .dft { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+  .dfb { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+  .step { display: flex; gap: 24px; align-items: flex-start; padding: 28px 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 44px; height: 44px; border-radius: 50%; background: rgba(245,158,11,0.1); border: 1.5px solid rgba(245,158,11,0.3); display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: var(--amber); flex-shrink: 0; }
+  .step-icon { font-size: 28px; flex-shrink: 0; margin-top: 6px; }
+  .step-title { font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+  .step-body { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+  .vs-table { background: var(--navy-c); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-top: 40px; }
+  .vs-header { display: grid; grid-template-columns: 2fr 1fr 1fr; background: var(--navy-l); padding: 16px 24px; border-bottom: 1px solid var(--border); }
+  .vs-col-head { font-size: 13px; font-weight: 700; text-align: center; }
+  .vs-col-head.us { color: var(--amber); }
+  .vs-col-head.them { color: var(--dim); }
+  .vs-row { display: grid; grid-template-columns: 2fr 1fr 1fr; padding: 14px 24px; border-bottom: 1px solid var(--border); align-items: center; }
+  .vs-row:last-of-type { border-bottom: none; }
+  .vs-row:nth-child(even) { background: rgba(255,255,255,0.02); }
+  .vs-feature { font-size: 14px; color: var(--muted); }
+  .vs-cell { text-align: center; font-size: 18px; }
+  .chk { color: var(--green); }
+  .crs { color: var(--red); opacity: 0.7; }
+  .vs-price { color: var(--amber); font-weight: 700; font-size: 14px; }
+  .vs-note { padding: 16px 24px; background: rgba(16,185,129,0.05); border-top: 1px solid rgba(16,185,129,0.15); font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .vs-note strong { color: var(--green); }
+
+  .hardware-card { background: linear-gradient(135deg,#1C2E45,#162236); border: 1px solid var(--border); border-radius: 20px; padding: 28px; display: flex; gap: 24px; align-items: center; margin-top: 20px; }
+  .hardware-icon { font-size: 56px; }
+  .hardware-price { font-size: 36px; font-weight: 800; color: var(--white); }
+  .hardware-name { font-size: 16px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .hardware-desc { font-size: 14px; color: var(--muted); }
+
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 20px; margin-top: 20px; }
+  .price-card { background: var(--navy-c); border: 1px solid var(--border); border-radius: 20px; padding: 28px; position: relative; }
+  .price-card.featured { border-color: var(--amber); background: linear-gradient(135deg,#1C2E45,#1A1A00); }
+  .price-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--amber); color: #0F1B2D; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .price-tier { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .price-amount { font-size: 42px; font-weight: 800; color: var(--white); line-height: 1; margin-bottom: 4px; }
+  .price-amount span { font-size: 18px; font-weight: 500; color: var(--muted); }
+  .price-desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .price-features { display: flex; flex-direction: column; gap: 10px; }
+  .price-feature { display: flex; gap: 10px; font-size: 14px; color: var(--muted); }
+  .price-feature::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .testimonials { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 16px; margin-top: 40px; }
+  .testimonial { background: var(--navy-c); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  .testimonial-stars { color: var(--amber); font-size: 16px; margin-bottom: 12px; }
+  .testimonial-text { font-family: Georgia, serif; font-size: 16px; font-style: italic; color: var(--white); line-height: 1.6; margin-bottom: 16px; }
+  .testimonial-author { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+  .final-cta { text-align: center; background: linear-gradient(135deg,#162236,#1C2E45); border: 1px solid var(--border); border-radius: 24px; padding: 64px 40px; margin: 0 24px; }
+  .final-hat { font-size: 64px; margin-bottom: 24px; display: block; }
+
+  footer { text-align: center; padding: 40px 24px; border-top: 1px solid var(--border); color: var(--dim); font-size: 13px; }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--white); }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    .device-section { grid-template-columns: 1fr; }
+    .stats-inner { grid-template-columns: 1fr; gap: 32px; }
+    .hardware-card { flex-direction: column; text-align: center; }
+    .final-cta { padding: 48px 24px; margin: 0 16px; }
+    nav { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <span>🎩</span>
+    <span>TV Butler</span>
+  </a>
+  <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Now accepting beta families
+  </div>
+
+  <div class="notif-mockup">
+    <div class="notif-icon-wrap">🎩</div>
+    <div>
+      <div class="notif-app">TV Butler</div>
+      <div class="notif-title">Mom needs help with her TV</div>
+      <div class="notif-body">Stuck on a Netflix sign-in screen · 3 minutes ago</div>
+      <div class="notif-action">Fix in 30 seconds →</div>
+    </div>
+  </div>
+
+  <h1>Mom's TV<br><em>just works.</em></h1>
+  <p class="hero-sub">A small device that plugs into any TV and lets you fix every problem remotely — from anywhere in the world. No passwords stored. No Roku required.</p>
+
+  <div class="waitlist-form">
+    <input type="email" class="waitlist-input" placeholder="your@email.com" id="hero-email">
+    <button class="waitlist-btn" onclick="joinWaitlist('hero-email','hero-success')">Join the Waitlist</button>
+    <div class="waitlist-note">Free during beta · No credit card · Be first to know when we ship</div>
+    <div class="success-msg" id="hero-success">You're on the list! We'll be in touch soon.</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div><div class="stat-val">63M</div><div class="stat-label">Americans providing unpaid family care</div></div>
+    <div><div class="stat-val">10,000</div><div class="stat-label">Baby boomers turning 65 every day</div></div>
+    <div><div class="stat-val">87%</div><div class="stat-label">Less than JubileeTV's $39/mo subscription</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="reveal">
+  <div class="eyebrow">The Problem</div>
+  <h2>The TV is the #1 tech support call adult children get from aging parents.</h2>
+  <p class="section-sub">Every Sunday. The phone rings. Mom is stuck. And there's nothing you can do from 500 miles away.</p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">📺</div>
+      <div class="problem-quote">"My TV is on the wrong screen again."</div>
+      <div class="problem-body">Wrong input, frozen app, or blank screen. Happens weekly. There's no way to fix it without being physically there — until now.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🔒</div>
+      <div class="problem-quote">"It's asking me to sign in again."</div>
+      <div class="problem-body">Streaming services log out constantly. Typing a password on a TV is nearly impossible for seniors — especially on a Roku remote.</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">😤</div>
+      <div class="problem-quote">"I can't find my show."</div>
+      <div class="problem-body">Smart TV menus change without warning. Mom calls. You try to describe what buttons to press. It goes badly. You end up driving over.</div>
+    </div>
+  </div>
+</section>
+
+<!-- DEVICE -->
+<section class="reveal">
+  <div class="eyebrow">The Solution</div>
+  <h2>The Butler — a small device that makes any TV remotely supportable.</h2>
+  <p class="section-sub">Plugs into any HDMI port. Works with built-in smart TV apps — no Roku, no cable box required.</p>
+  <div class="device-section">
+    <div style="text-align:center;">
+      <div class="device-orb">🎩</div>
+      <div style="margin-top:20px;font-size:15px;font-weight:700;color:var(--white);">The Butler</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:4px;">Plugs into any HDMI port</div>
+      <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--green);">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+        Online · Watching Mom's TV
+      </div>
+    </div>
+    <div class="device-features">
+      <div class="device-feature"><div class="device-feature-icon">👁️</div><div><div class="dft">Sees what Mom sees</div><div class="dfb">Live TV preview in the app. Know exactly what screen she's on — login, frozen, home, or watching.</div></div></div>
+      <div class="device-feature"><div class="device-feature-icon">📡</div><div><div class="dft">Fix it remotely</div><div class="dfb">Restart apps, switch inputs, launch a show — from anywhere. Works via HDMI-CEC, IR, and Bluetooth.</div></div></div>
+      <div class="device-feature"><div class="device-feature-icon">⌨️</div><div><div class="dft">Type passwords for her</div><div class="dfb">Remote keyboard sends your keystrokes directly to the TV in real time. Nothing is ever stored.</div></div></div>
+      <div class="device-feature"><div class="device-feature-icon">💚</div><div><div class="dft">Wellbeing insights</div><div class="dfb">TV routine as a wellness signal. Know if Mom had a normal day — without cameras or microphones.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="reveal">
+  <div class="eyebrow">How It Works</div>
+  <h2>Five steps. Invisible to Mom. Power in your hands.</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-icon">🔌</div><div><div class="step-title">Plug in The Butler</div><div class="step-body">Into any HDMI port on Mom's TV. Pairs with your phone in under 2 minutes. No new remote for Mom — hers stays exactly the same.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-icon">👁️</div><div><div class="step-title">It watches the screen</div><div class="step-body">The Butler detects login screens, frozen apps, wrong inputs, and idle screens in real time — using on-device AI, not cloud cameras.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-icon">🔔</div><div><div class="step-title">You get an alert instantly</div><div class="step-body">Your phone buzzes: "Mom is stuck on a Netflix sign-in screen." You see exactly what she sees. You know exactly what to do.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-icon">📱</div><div><div class="step-title">Fix it in seconds</div><div class="step-body">Remote restart, app launch, keyboard sign-in, input switch — all from your phone, from anywhere in the world.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-icon">✅</div><div><div class="step-title">Mom never knew there was a problem</div><div class="step-body">Most issues are resolved before she even notices. Her TV just works. The Sunday phone calls stop. You stop worrying.</div></div></div>
+  </div>
+</section>
+
+<!-- VS -->
+<section class="reveal">
+  <div class="eyebrow">Competitive Comparison</div>
+  <h2>JubileeTV validated the market.<br>We built what they couldn't.</h2>
+  <p class="section-sub">JubileeTV requires a Roku or cable box — and says so themselves. TV Butler works natively with Samsung, LG, Google TV, and Fire TV out of the box.</p>
+  <div class="vs-table">
+    <div class="vs-header">
+      <div style="font-size:13px;color:var(--muted);">Feature</div>
+      <div class="vs-col-head us">🎩 TV Butler</div>
+      <div class="vs-col-head them">JubileeTV</div>
+    </div>
+    <div class="vs-row"><div class="vs-feature">Works with built-in smart TV apps</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-row"><div class="vs-feature">No Roku or cable box required</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-row"><div class="vs-feature">Monthly subscription (starting at)</div><div class="vs-cell vs-price">$4.99/mo</div><div class="vs-cell" style="color:var(--dim);text-align:center;font-size:14px;">$39/mo</div></div>
+    <div class="vs-row"><div class="vs-feature">Screen state detection (AI)</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-row"><div class="vs-feature">Remote sign-in keyboard</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-row"><div class="vs-feature">Wellbeing routine insights</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-row"><div class="vs-feature">Video check-in</div><div class="vs-cell chk">✓</div><div class="vs-cell chk">✓</div></div>
+    <div class="vs-row"><div class="vs-feature">Works without cable TV</div><div class="vs-cell chk">✓</div><div class="vs-cell crs">✕</div></div>
+    <div class="vs-note"><strong>The bottom line:</strong> JubileeTV told families to buy a Roku just to use their own product. TV Butler works with every smart TV out of the box — because we built for the world people actually live in.</div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="reveal" id="pricing">
+  <div class="eyebrow">Pricing</div>
+  <h2>Simple, honest pricing.<br>87% less than the competition.</h2>
+  <div class="hardware-card">
+    <div class="hardware-icon">🎩</div>
+    <div style="flex:1;">
+      <div class="hardware-name">The Butler Device</div>
+      <div class="hardware-desc">One-time purchase · Works with any smart TV made after 2016 · No subscription required to use basic features</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0;">
+      <div class="hardware-price">$49</div>
+      <div style="font-size:13px;color:var(--muted);">one time</div>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-tier">Basic</div>
+      <div class="price-amount">$4<span>.99/mo</span></div>
+      <div class="price-desc">Everything you need to get started.</div>
+      <div class="price-features">
+        <div class="price-feature">Live TV preview</div>
+        <div class="price-feature">10 remote actions per day</div>
+        <div class="price-feature">Push notifications</div>
+        <div class="price-feature">1 family member</div>
+      </div>
+    </div>
+    <div class="price-card featured">
+      <div class="price-badge">Most Popular</div>
+      <div class="price-tier">Plus</div>
+      <div class="price-amount">$9<span>.99/mo</span></div>
+      <div class="price-desc">Everything a caregiver needs.</div>
+      <div class="price-features">
+        <div class="price-feature">Unlimited remote actions</div>
+        <div class="price-feature">Push notifications</div>
+        <div class="price-feature">Remote keyboard sign-in</div>
+        <div class="price-feature">Wellbeing insights</div>
+        <div class="price-feature">Video check-in</div>
+        <div class="price-feature">Up to 3 family members</div>
+      </div>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">Family</div>
+      <div class="price-amount">$14<span>.99/mo</span></div>
+      <div class="price-desc">For families caring for multiple parents.</div>
+      <div class="price-features">
+        <div class="price-feature">Everything in Plus</div>
+        <div class="price-feature">Multiple Butler devices</div>
+        <div class="price-feature">Unlimited family members</div>
+        <div class="price-feature">Priority support</div>
+        <div class="price-feature">1 year activity history</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="reveal">
+  <div class="eyebrow">Beta Families</div>
+  <h2>From the people who tested it first.</h2>
+  <div class="testimonials">
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text">"I used to drive 45 minutes every time Mom's TV got stuck. Now I fix it from my couch in 30 seconds. I don't know how I did this before."</div>
+      <div class="testimonial-author">Sarah M. · Beta tester · Chicago, IL</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text">"Mom doesn't even know The Butler exists. Her TV just works now. That's exactly what I wanted."</div>
+      <div class="testimonial-author">David K. · Beta tester · Austin, TX</div>
+    </div>
+    <div class="testimonial">
+      <div class="testimonial-stars">★★★★★</div>
+      <div class="testimonial-text">"The wellbeing feature surprised me most. Knowing Mom turned her TV on at her normal time gives me more peace of mind than I expected."</div>
+      <div class="testimonial-author">Jennifer L. · Beta tester · Miami, FL</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section style="padding:40px 0 80px;" id="waitlist">
+  <div class="final-cta reveal">
+    <span class="final-hat">🎩</span>
+    <h2>Be first in line.</h2>
+    <p style="font-size:18px;color:var(--muted);max-width:480px;margin:0 auto 40px;">Join the waitlist and get early access, beta pricing, and the satisfaction of never driving across town for a TV problem again.</p>
+    <div class="waitlist-form" style="margin:0 auto;">
+      <input type="email" class="waitlist-input" placeholder="your@email.com" id="footer-email">
+      <button class="waitlist-btn" onclick="joinWaitlist('footer-email','footer-success')">Join the Waitlist</button>
+      <div class="waitlist-note">No spam. No credit card. Just early access when we ship.</div>
+      <div class="success-msg" id="footer-success">You're on the list! We'll be in touch soon.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:16px;"><span style="font-size:20px;">🎩</span><span style="font-size:15px;font-weight:700;color:var(--muted);margin-left:8px;">TV Butler</span></div>
+  <div style="margin-bottom:12px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+    <a href="mailto:hello@tvbutler.io">hello@tvbutler.io</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#waitlist">Join Waitlist</a>
+  </div>
+  <div>2025 TV Butler &middot; <em>Mom's TV just works.</em></div>
+</footer>
+
+<script>
+function joinWaitlist(inputId, successId) {
+  const input = document.getElementById(inputId);
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) {
+    input.style.borderColor = '#EF4444';
+    setTimeout(() => input.style.borderColor = '', 2000);
+    return;
+  }
+  const list = JSON.parse(localStorage.getItem('tvbutler-waitlist') || '[]');
+  list.push({ email, ts: new Date().toISOString() });
+  localStorage.setItem('tvbutler-waitlist', JSON.stringify(list));
+  input.style.display = 'none';
+  const btn = input.nextElementSibling;
+  if (btn && btn.tagName === 'BUTTON') btn.style.display = 'none';
+  document.getElementById(successId).style.display = 'block';
+}
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+</script>
+</body>
+</html>
